@@ -22,7 +22,7 @@ NA
     
 ## Usage
     
-Access the application at the following url:
+Access the application at the following url: https://shielded-sands-06298.herokuapp.com/
 
 ![Note Taker homepage](./Screen%20Shot%202023-03-02%20at%201.40.19%20PM.png)
     
