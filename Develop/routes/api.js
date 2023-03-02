@@ -1,17 +1,23 @@
 const notes = require('express').Router();
-const uuid = require('./helpers/uuid');
+const uuid = require('../helpers/uuid');
+const fs = require('fs');
 
 // GET request for notes
-notes.get('/api/notes', (req, res) => {
+notes.get('/notes', (req, res) => {
     // Send a message to the client
-    res.status(200).json(`${req.method} request received to get notes`);
+    fs.readFile('./db/db.json', 'utf8', (err, data) => {
+        if (err) {
+          console.error(err);
+        } else {
+         res.send(data);
+        }});        
   
     // Log our request to the terminal
     console.info(`${req.method} request received to get reviews`);
   });
   
   // POST request to add a note
-  notes.post('/api/notes', (req, res) => {
+  notes.post('/notes', (req, res) => {
     // Log that a POST request was received
     console.info(`${req.method} request received to add a notes`);
   
@@ -24,7 +30,7 @@ notes.get('/api/notes', (req, res) => {
       const newNote = {
         title,
         text,
-        note_id: uuid(),
+        id: uuid(),
       };
   
       // Obtain existing note
@@ -59,6 +65,43 @@ notes.get('/api/notes', (req, res) => {
       res.status(201).json(response);
     } else {
       res.status(500).json('Error in posting note');
+    }
+  });
+
+  notes.delete('/notes/:id', (req, res) => {
+    // Log that a POST request was received
+    console.info(`${req.method} request received to delete a note`);
+  
+    if (req.params.id) {
+  
+      // Obtain existing note
+      fs.readFile('./db/db.json', 'utf8', (err, data) => {
+        if (err) {
+          console.error(err);
+        } else {
+          // Convert string into JSON object
+          const parsedNotes = JSON.parse(data);
+          const filteredNotes = parsedNotes.filter(note => note.id !== req.params.id);
+          // Write updated notes back to the file
+          fs.writeFile(
+            './db/db.json',
+            JSON.stringify(filteredNotes, null, 4),
+            (writeErr) =>
+              writeErr
+                ? console.error(writeErr)
+                : console.info('Successfully updated notes!')
+          );
+        }
+      });
+  
+      const response = {
+        status: 'success',
+      };
+  
+      console.log(response);
+      res.status(201).json(response);
+    } else {
+      res.status(500).json('Error in deleting note');
     }
   });
 
